@@ -1,0 +1,14 @@
+<html>
+<head>
+    <title>Item Details</title>
+</head>
+<body>
+    <h1>AI Gen Quiz</h1>
+    <form onsubmit="submitGenerate(event)">
+        <input type="text" name="inputUrl" placeholder="Enter URL..." style="width: 560px;" />
+        <input type="submit" value="Generate" />
+    </form>
+    <div id="output"></div>
+    <script src="{{ url_for('static', path='/script.js') }}"></script>
+</body>
+</html>
