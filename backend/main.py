@@ -1,11 +1,7 @@
-from enum import IntEnum, StrEnum
+from enum import StrEnum
 import json
-from typing import Union
 
-from fastapi import FastAPI, Request
-from fastapi.responses import HTMLResponse
-from fastapi.staticfiles import StaticFiles
-from fastapi.templating import Jinja2Templates
+from fastapi import FastAPI
 from pydantic import BaseModel
 from openai import AsyncOpenAI
 import requests
@@ -14,8 +10,6 @@ from bs4 import BeautifulSoup, Comment
 client = AsyncOpenAI()
 
 app = FastAPI()
-app.mount('/static', StaticFiles(directory='static'), name='static')
-templates = Jinja2Templates(directory='templates')
 
 
 class GenerateRequest(BaseModel):
@@ -76,8 +70,9 @@ async def generate(generateRequest: GenerateRequest):
 
     chat_completion = await client.chat.completions.create(
         messages=[
-            { 'role': 'system', 'content': 'You are a helpful assistant that can generate quizzes that cover the gist of any given text and output JSON.' },
-            { 'role': 'user', 'content': f"Write top 3 multiple-choice quizzes that can test my understanding of the text below. Each quiz should have 4 choices but only 1 is the correct answer. Explain why the answer is correct and why each of other choices is wrong. Describe the difficulty of the question relative to other questions (whether this is an easy, medium or hard question). \n\n {context}" }
+            {'role': 'system', 'content': 'You are a helpful assistant that can generate quizzes that cover the gist of any given text and output JSON.'},
+            {'role': 'user', 'content': f"Write top 3 multiple-choice quizzes that can test my understanding of the text below. Each quiz should have 4 choices but only 1 is the correct answer. Explain why the answer is correct and why each of other choices is wrong. Describe the difficulty of the question relative to other questions (whether this is an easy, medium or hard question). \n\n {
+                context}"}
         ],
         model='gpt-3.5-turbo-1106',
         functions=[
