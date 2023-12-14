@@ -1,4 +1,4 @@
-from enum import StrEnum
+from enum import Enum
 import json
 
 from fastapi import FastAPI
@@ -16,7 +16,7 @@ class GenerateRequest(BaseModel):
     url: str
 
 
-class ChoiceLetter(StrEnum):
+class ChoiceLetter(str, Enum):
     A = 'a'
     B = 'b'
     C = 'c'
@@ -30,7 +30,7 @@ class Choice(BaseModel):
     explanation: str
 
 
-class Difficulty(StrEnum):
+class Difficulty(str, Enum):
     EASY = 'easy'
     MEDIUM = 'medium'
     HARD = 'hard'
@@ -70,9 +70,14 @@ async def generate(generateRequest: GenerateRequest):
 
     chat_completion = await client.chat.completions.create(
         messages=[
-            {'role': 'system', 'content': 'You are a helpful assistant that can generate quizzes that cover the gist of any given text and output JSON.'},
-            {'role': 'user', 'content': f"Write top 3 multiple-choice quizzes that can test my understanding of the text below. Each quiz must have 4 choices and only 1 is the correct answer. For each of the choices, explain why the choice is correct or wrong. Describe the difficulty of the question relative to other questions (whether this is an easy, medium or hard question). \n\n {
-                context}"}
+            {
+                'role': 'system',
+                'content': 'You are a helpful assistant that can generate quizzes that cover the gist of any given text and output JSON.'
+            },
+            {
+                'role': 'user',
+                'content': f"Write top 3 multiple-choice quizzes that can test my understanding of the text below. Each quiz must have 4 choices and only 1 is the correct answer. For each of the choices, explain why the choice is correct or wrong. Describe the difficulty of the question relative to other questions(whether this is an easy, medium or hard question). \n\n {context}"
+            }
         ],
         model='gpt-3.5-turbo-1106',
         functions=[
