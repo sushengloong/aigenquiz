@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, FormEvent } from 'react';
+import { useState, FormEvent, useEffect } from 'react';
 import QuizComponent from './quiz-component';
 import LoadingSpinner from './loading-spinner';
 
@@ -8,6 +8,27 @@ export default function QuizGenerator() {
     const [url, setUrl] = useState<string>('');
     const [quizzes, setQuizzes] = useState<Quizzes | null>(null);
     const [isLoading, setIsLoading] = useState<boolean>(false);
+
+    useEffect(() => {
+        const eventSource = new EventSource('/api/generate_results', {withCredentials: true});
+
+        eventSource.onmessage = (event) => {
+            const jsonData = JSON.parse(event.data);
+            const quizzes = jsonData.quizzes;
+            console.log('Received event:', quizzes);
+            setQuizzes(quizzes);
+            if (isLoading) {
+                setIsLoading(false);
+            }
+        };
+
+        eventSource.onerror = (error: Event) => {
+          console.error("EventSource failed:", error);
+          eventSource.close();
+        };
+
+        return () => eventSource.close();
+      });
 
     const handleSubmit = async (event: FormEvent) => {
         event.preventDefault();
@@ -21,12 +42,14 @@ export default function QuizGenerator() {
         });
 
         if (response.ok) {
-            const quizzes: Quizzes = await response.json();
-            setQuizzes(quizzes);
+            // const quizzes: Quizzes = await response.json();
+            // setQuizzes(quizzes);
+            const generateJob: GenerateJob = await response.json();
+            console.log(`Created job ${generateJob.id}`);
         } else {
             console.error('Failed to generate quiz');
+            setIsLoading(false);
         }
-        setIsLoading(false);
     };
 
     return (

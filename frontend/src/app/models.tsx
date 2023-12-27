@@ -13,3 +13,7 @@ interface Quizzes {
     quizzes: Quiz[];
     count: number;
 }
+
+interface GenerateJob {
+    id: string;
+}
