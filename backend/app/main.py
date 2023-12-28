@@ -3,6 +3,7 @@ from enum import Enum
 import json
 import logging
 from typing import Dict
+import os
 import uuid
 
 from fastapi import BackgroundTasks, FastAPI, Response
@@ -12,6 +13,8 @@ import requests
 from bs4 import BeautifulSoup, Comment
 from sse_starlette import EventSourceResponse
 from starlette.middleware.cors import CORSMiddleware
+
+os.environ['OPENAI_LOG'] = 'debug'
 
 client = AsyncOpenAI()
 
