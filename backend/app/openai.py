@@ -1,5 +1,6 @@
 from openai import AsyncOpenAI
 
+from app.globals import OPENAI_MODEL_NAME
 from app.models import Quizzes
 
 client = AsyncOpenAI()
@@ -12,7 +13,7 @@ def get_mock_openai_response():
 
 
 async def call_openai(context: str) -> str:
-    num_quizzes = 5
+    num_quizzes = 10
     chat_completion = await client.chat.completions.create(
         messages=[
             {
@@ -24,7 +25,7 @@ async def call_openai(context: str) -> str:
                 "content": f"Write top {num_quizzes} multiple-choice quizzes that can test my understanding of the text below. Each quiz must have 4 choices and only 1 is the correct answer. For each of the choices, explain why the choice is correct or wrong. Describe the difficulty of the question relative to other questions(whether this is an easy, medium or hard question). \n\n {context}",
             },
         ],
-        model="gpt-3.5-turbo-1106",
+        model=OPENAI_MODEL_NAME,
         functions=[
             {
                 "name": "generate_quizes",
