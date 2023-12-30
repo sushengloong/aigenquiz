@@ -15,7 +15,7 @@ from bs4 import BeautifulSoup, Comment
 from sse_starlette import EventSourceResponse
 from starlette.middleware.cors import CORSMiddleware
 
-from .models import GenerateRequest, Quizzes
+from app.models import GenerateRequest, Quizzes
 
 os.environ['OPENAI_LOG'] = 'debug'
 
