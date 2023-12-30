@@ -2,18 +2,17 @@ import asyncio
 import json
 import logging
 import os
-from typing import Dict
 import uuid
+from typing import Dict
 
-from fastapi import BackgroundTasks, FastAPI, Response
-from asgi_correlation_id import CorrelationIdFilter, CorrelationIdMiddleware
-from openai import AsyncOpenAI
 import requests
+from app.models import GenerateRequest, Quizzes
+from asgi_correlation_id import CorrelationIdFilter, CorrelationIdMiddleware
 from bs4 import BeautifulSoup, Comment
+from fastapi import BackgroundTasks, FastAPI, Response
+from openai import AsyncOpenAI
 from sse_starlette import EventSourceResponse
 from starlette.middleware.cors import CORSMiddleware
-
-from app.models import GenerateRequest, Quizzes
 
 os.environ["OPENAI_LOG"] = "debug"
 
