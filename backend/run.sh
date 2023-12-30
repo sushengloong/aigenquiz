@@ -6,6 +6,8 @@ source venv/bin/activate
 
 pip install -r requirements.txt
 
+playwright install
+
 ruff --fix app/
 
 ruff format app/

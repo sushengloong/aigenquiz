@@ -41,7 +41,9 @@ app.add_middleware(
 
 async def fetch_url_and_generate_quizzes(job_id: uuid.UUID, input_url: str):
     logging.info(f"Starting job {str(job_id)}")
-    context = scrape(input_url)
+    # context = scrape(input_url)
+    context = await scrape(input_url)
+    logging.info(f"Scraped:  {context}")
     generated_content = await call_openai(context)
     # generated_content = get_mock_openai_response(input_url)
 

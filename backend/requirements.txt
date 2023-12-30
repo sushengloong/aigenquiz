@@ -8,3 +8,4 @@ requests
 beautifulsoup4
 asyncio
 asgi-correlation-id
+playwright
