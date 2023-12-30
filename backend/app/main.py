@@ -11,7 +11,8 @@ from starlette.middleware.cors import CORSMiddleware
 
 from app.globals import JOB_OUTPUT_QUIZZES
 from app.models import GenerateRequest
-from app.openai import fetch_url_and_generate_quizzes
+from app.openai import call_openai
+from app.scraper import scrape
 
 os.environ["OPENAI_LOG"] = "debug"
 
@@ -36,6 +37,18 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+
+async def fetch_url_and_generate_quizzes(job_id: uuid.UUID, input_url: str):
+    logging.info(f"Starting job {str(job_id)}")
+    context = scrape(input_url)
+    generated_content = await call_openai(context)
+    # generated_content = get_mock_openai_response(input_url)
+
+    quizzes = json.loads(generated_content) if generated_content is not None else None
+    JOB_OUTPUT_QUIZZES[job_id] = quizzes
+    logging.info(f"Finished job {str(job_id)}")
+    logging.info(f"Finished job {str(job_id)}")
 
 
 @app.post("/api/generate")
