@@ -1,3 +1,4 @@
+mypy
 fastapi
 uvicorn[standard]
 sse-starlette
@@ -5,3 +6,4 @@ openai
 requests
 beautifulsoup4
 asyncio
+asgi-correlation-id
