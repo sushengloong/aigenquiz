@@ -9,3 +9,4 @@ beautifulsoup4
 asyncio
 asgi-correlation-id
 playwright
+pypdf

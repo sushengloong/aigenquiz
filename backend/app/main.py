@@ -9,9 +9,10 @@ from fastapi import BackgroundTasks, FastAPI, Response
 from sse_starlette import EventSourceResponse
 from starlette.middleware.cors import CORSMiddleware
 
-from app.globals import JOB_OUTPUT_QUIZZES
+from app.globals import JOB_OUTPUT_QUIZZES, MAX_CONTEXT_LENGTH
 from app.models import GenerateRequest
 from app.openai import call_openai
+from app.pdf_downloader import download_pdf, parse_pdf
 from app.scraper import scrape
 
 os.environ["OPENAI_LOG"] = "debug"
@@ -41,9 +42,18 @@ app.add_middleware(
 
 async def fetch_url_and_generate_quizzes(job_id: uuid.UUID, input_url: str):
     logging.info(f"Starting job {str(job_id)}")
-    # context = scrape(input_url)
-    context = await scrape(input_url)
-    logging.info(f"Scraped:  {context}")
+    input_url = input_url.strip()
+    if input_url.endswith(".pdf") or input_url.endswith(".PDF"):
+        logging.info(f"PDF detected: {input_url}")
+        pdf_stream = download_pdf(input_url)
+        context = parse_pdf(pdf_stream)
+        logging.info(f"Parsed:  {context}")
+    else:
+        context = await scrape(input_url)
+        logging.info(f"Scraped:  {context}")
+
+    context = context[:MAX_CONTEXT_LENGTH]
+
     generated_content = await call_openai(context)
     # generated_content = get_mock_openai_response(input_url)
 
