@@ -1,5 +1,4 @@
 import asyncio
-from enum import Enum
 import json
 import logging
 import os
@@ -8,7 +7,6 @@ import uuid
 
 from fastapi import BackgroundTasks, FastAPI, Response
 from asgi_correlation_id import CorrelationIdFilter, CorrelationIdMiddleware
-from pydantic import BaseModel
 from openai import AsyncOpenAI
 import requests
 from bs4 import BeautifulSoup, Comment
