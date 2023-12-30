@@ -15,6 +15,8 @@ from bs4 import BeautifulSoup, Comment
 from sse_starlette import EventSourceResponse
 from starlette.middleware.cors import CORSMiddleware
 
+from models import GenerateRequest, Quizzes
+
 os.environ['OPENAI_LOG'] = 'debug'
 
 def configure_logging():
@@ -37,44 +39,6 @@ app.add_middleware(
 )
 
 client = AsyncOpenAI()
-
-class GenerateRequest(BaseModel):
-    url: str
-
-
-class ChoiceLetter(str, Enum):
-    A = 'a'
-    B = 'b'
-    C = 'c'
-    D = 'd'
-
-
-class Choice(BaseModel):
-    letter: ChoiceLetter
-    choice: 'str'
-    is_correct: bool
-    explanation: str
-
-
-class Difficulty(str, Enum):
-    EASY = 'easy'
-    MEDIUM = 'medium'
-    HARD = 'hard'
-
-
-class Quiz(BaseModel):
-    question: str
-    hint: str
-    choices: list[Choice]
-    answer: str
-    explanation: str
-    difficulty: Difficulty
-
-
-class Quizzes(BaseModel):
-    quizzes: list[Quiz]
-    count: int
-
 
 def tag_visible(element):
     if element.parent.name in ['style', 'script', 'head', 'title', 'meta', '[document]']:
