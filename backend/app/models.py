@@ -7,23 +7,23 @@ class GenerateRequest(BaseModel):
 
 
 class ChoiceLetter(str, Enum):
-    A = 'a'
-    B = 'b'
-    C = 'c'
-    D = 'd'
+    A = "a"
+    B = "b"
+    C = "c"
+    D = "d"
 
 
 class Choice(BaseModel):
     letter: ChoiceLetter
-    choice: 'str'
+    choice: "str"
     is_correct: bool
     explanation: str
 
 
 class Difficulty(str, Enum):
-    EASY = 'easy'
-    MEDIUM = 'medium'
-    HARD = 'hard'
+    EASY = "easy"
+    MEDIUM = "medium"
+    HARD = "hard"
 
 
 class Quiz(BaseModel):
