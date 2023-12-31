@@ -32,7 +32,7 @@ export default function QuizGenerator({quiz, index}: QuizComponentProps) {
                         onClick={() => handleChoiceClick(choiceIndex)}
                         className={getButtonClasses(choiceIndex)}
                     >
-                        {choice.choice}
+                        {choice.text}
                     </button>
                 ))}
             </div>

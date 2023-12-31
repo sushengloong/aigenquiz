@@ -1,5 +1,5 @@
 interface Choice {
-    choice: string;
+    text: string;
     is_correct: boolean;
     explanation: string
 }

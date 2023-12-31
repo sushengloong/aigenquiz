@@ -1,4 +1,5 @@
 from enum import Enum
+
 from pydantic import BaseModel
 
 
@@ -6,16 +7,8 @@ class GenerateRequest(BaseModel):
     url: str
 
 
-class ChoiceLetter(str, Enum):
-    A = "a"
-    B = "b"
-    C = "c"
-    D = "d"
-
-
 class Choice(BaseModel):
-    letter: ChoiceLetter
-    choice: "str"
+    text: str
     is_correct: bool
     explanation: str
 
