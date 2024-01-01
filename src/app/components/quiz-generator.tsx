@@ -12,9 +12,7 @@ export default function QuizGenerator() {
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
   useEffect(() => {
-    const eventSource = new EventSource("/api/generate_results", {
-      withCredentials: true,
-    });
+    const eventSource = new EventSource("/api/events");
 
     eventSource.onmessage = (event) => {
       const jsonData = JSON.parse(event.data);
