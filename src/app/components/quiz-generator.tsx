@@ -4,6 +4,8 @@ import { useState, FormEvent, useEffect } from "react";
 import QuizComponent from "./quiz-component";
 import LoadingSpinner from "./loading-spinner";
 
+import { Quizzes } from "../models";
+
 export default function QuizGenerator() {
   const [url, setUrl] = useState<string>("");
   const [quizzes, setQuizzes] = useState<Quizzes | null>(null);

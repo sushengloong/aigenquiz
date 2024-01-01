@@ -1,19 +1,19 @@
-interface Choice {
+export interface Choice {
   text: string;
   is_correct: boolean;
   explanation: string;
 }
 
-interface Quiz {
+export interface Quiz {
   question: string;
   choices: Choice[];
 }
 
-interface Quizzes {
+export interface Quizzes {
   quizzes: Quiz[];
   count: number;
 }
 
-interface GenerateJob {
+export interface GenerateJob {
   id: string;
 }
