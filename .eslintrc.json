@@ -1,3 +1,7 @@
 {
-  "extends": "next/core-web-vitals"
+  "extends": ["next", "next/core-web-vitals", "plugin:prettier/recommended"],
+  "rules": {
+    "semi": ["error", "always"], // Enforce semicolons
+    "no-unused-vars": "error" // Report unused variables
+  }
 }

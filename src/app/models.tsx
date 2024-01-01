@@ -1,19 +1,19 @@
 interface Choice {
-    text: string;
-    is_correct: boolean;
-    explanation: string
+  text: string;
+  is_correct: boolean;
+  explanation: string;
 }
 
 interface Quiz {
-    question: string;
-    choices: Choice[];
+  question: string;
+  choices: Choice[];
 }
 
 interface Quizzes {
-    quizzes: Quiz[];
-    count: number;
+  quizzes: Quiz[];
+  count: number;
 }
 
 interface GenerateJob {
-    id: string;
+  id: string;
 }
