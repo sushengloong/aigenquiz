@@ -1,4 +1,6 @@
 import OpenAI from "openai";
+import { Quizzes } from "../models";
+import zodToJsonSchema from "zod-to-json-schema";
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
@@ -26,42 +28,7 @@ export const generateQuiz = async (context: string): Promise<string> => {
       {
         name: "generate_quizzes",
         description: "Generate quizzes from a given text",
-        parameters: {
-          type: "object",
-          properties: {
-            quizzes: {
-              type: "array",
-              maxItems: numQuizzes,
-              items: {
-                type: "object",
-                properties: {
-                  question: {
-                    type: "string",
-                  },
-                  choices: {
-                    type: "array",
-                    items: {
-                      type: "object",
-                      properties: {
-                        choice: {
-                          type: "string",
-                        },
-                        explanation: {
-                          type: "string",
-                        },
-                        is_correct: {
-                          type: "boolean",
-                        },
-                      },
-                      required: ["choice", "explaination", "is_correct"],
-                    },
-                  },
-                },
-                required: ["question", "choices"],
-              },
-            },
-          },
-        },
+        parameters: zodToJsonSchema(Quizzes),
       },
     ],
     function_call: { name: "generate_quizzes" },
