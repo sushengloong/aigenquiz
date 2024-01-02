@@ -1,7 +1,7 @@
 import { CHANNEL_NAME } from "@/app/events";
 import { Redis } from "ioredis";
 import { v4 as uuidv4 } from "uuid";
-import PdfParse from "pdf-parse";
+import { PdfReader } from "pdfreader";
 
 const redisPublisher = new Redis();
 
@@ -13,19 +13,23 @@ async function downloadPdf(url: string): Promise<Buffer> {
   return Buffer.from(await response.arrayBuffer());
 }
 
-async function parsePdfText(pdfBuffer: Buffer): Promise<string> {
-  const data = await PdfParse(pdfBuffer);
-  return data.text;
+async function parsePdf(pdfBuffer: Buffer): Promise<string> {
+  let pdfText = "";
+  return new Promise((resolve, reject) => {
+    new PdfReader(null).parseBuffer(pdfBuffer, (err, item) => {
+      if (err) reject(err);
+      else if (!item) resolve(pdfText);
+      else if (item.text) pdfText = `${pdfText} ${item.text}`;
+    });
+  });
 }
 
 async function fetchUrlAndGenerateQuiz(id: string, url: string) {
   console.log(`Fetching URL and generating quiz for ${id} and ${url}...`);
 
   const pdfBuffer = await downloadPdf(url);
-  const pdfText = await parsePdfText(pdfBuffer);
-
+  const pdfText = await parsePdf(pdfBuffer);
   console.log(`Parse PDF text: ${pdfText.substring(0, 80)}...`);
-
   const response = JSON.stringify({ id: id, message: "Hello World!" });
   redisPublisher.publish(CHANNEL_NAME, response, (err) => {
     if (err) {
