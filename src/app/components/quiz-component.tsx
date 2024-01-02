@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Quiz } from "../models";
 
 interface QuizComponentProps {
   quiz: Quiz;
