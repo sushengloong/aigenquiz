@@ -4,11 +4,11 @@ import { useState, FormEvent, useEffect } from "react";
 import QuizComponent from "./quiz-component";
 import LoadingSpinner from "./loading-spinner";
 
-import { Quizzes } from "../models";
+import { GenerateJob, Quiz } from "../models";
 
 export default function QuizGenerator() {
   const [url, setUrl] = useState<string>("");
-  const [quizzes, setQuizzes] = useState<Quizzes | null>(null);
+  const [quizzes, setQuizzes] = useState<Quiz[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
   useEffect(() => {
@@ -76,10 +76,10 @@ export default function QuizGenerator() {
       {isLoading ? (
         <LoadingSpinner />
       ) : (
-        quizzes && (
+        !!quizzes.length && (
           <div className="mt-4">
             <h2 className="text-lg font-semibold">Quizzes:</h2>
-            {quizzes.quizzes.map((quiz, index) => (
+            {quizzes.map((quiz, index) => (
               <QuizComponent key={index} quiz={quiz} index={index} />
             ))}
           </div>

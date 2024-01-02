@@ -1,5 +1,5 @@
 export interface Choice {
-  text: string;
+  choice: string;
   is_correct: boolean;
   explanation: string;
 }
@@ -7,11 +7,6 @@ export interface Choice {
 export interface Quiz {
   question: string;
   choices: Choice[];
-}
-
-export interface Quizzes {
-  quizzes: Quiz[];
-  count: number;
 }
 
 export interface GenerateJob {

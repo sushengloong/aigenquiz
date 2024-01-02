@@ -2,6 +2,7 @@ import { CHANNEL_NAME } from "@/app/events";
 import { Redis } from "ioredis";
 import { v4 as uuidv4 } from "uuid";
 import { PdfReader } from "pdfreader";
+import { generateQuiz } from "@/app/services/openai";
 
 const redisPublisher = new Redis();
 
@@ -30,7 +31,12 @@ async function fetchUrlAndGenerateQuiz(id: string, url: string) {
   const pdfBuffer = await downloadPdf(url);
   const pdfText = await parsePdf(pdfBuffer);
   console.log(`Parse PDF text: ${pdfText.substring(0, 80)}...`);
-  const response = JSON.stringify({ id: id, message: "Hello World!" });
+
+  const generated = await generateQuiz(pdfText);
+  console.log(`Generated: ${generated}...`);
+  const quizzes = JSON.parse(generated);
+
+  const response = JSON.stringify({ id, ...quizzes });
   redisPublisher.publish(CHANNEL_NAME, response, (err) => {
     if (err) {
       console.error("Failed to publish: %s", err.message);
