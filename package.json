@@ -14,6 +14,7 @@
     "next": "14.0.4",
     "openai": "^4.24.1",
     "pdfreader": "^3.0.2",
+    "playwright": "^1.40.1",
     "react": "^18",
     "react-dom": "^18",
     "uuid": "^9.0.1",

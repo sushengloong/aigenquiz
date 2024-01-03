@@ -3,6 +3,7 @@ import { Redis } from "ioredis";
 import { v4 as uuidv4 } from "uuid";
 import { PdfReader } from "pdfreader";
 import { generateQuiz } from "@/app/services/openai";
+import { scrape } from "@/app/services/scraper";
 
 const redisPublisher = new Redis();
 
@@ -28,11 +29,19 @@ async function parsePdf(pdfBuffer: Buffer): Promise<string> {
 async function fetchUrlAndGenerateQuiz(id: string, url: string) {
   console.log(`Fetching URL and generating quiz for ${id} and ${url}...`);
 
-  const pdfBuffer = await downloadPdf(url);
-  const pdfText = await parsePdf(pdfBuffer);
-  console.log(`Parse PDF text: ${pdfText.substring(0, 80)}...`);
+  const trimmedUrl = url.trim();
 
-  const generated = await generateQuiz(pdfText);
+  let context: string;
+  if (trimmedUrl.endsWith(".pdf") || trimmedUrl.endsWith(".PDF")) {
+    const pdfBuffer = await downloadPdf(url);
+    context = await parsePdf(pdfBuffer);
+  } else {
+    context = await scrape(trimmedUrl);
+  }
+
+  console.log(`Context: ${context.substring(0, 80)}...`);
+
+  const generated = await generateQuiz(context);
   console.log(`Generated: ${generated}...`);
   const quizzes = JSON.parse(generated);
 
