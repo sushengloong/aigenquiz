@@ -44,8 +44,6 @@ export default function QuizGenerator() {
     });
 
     if (response.ok) {
-      // const quizzes: Quizzes = await response.json();
-      // setQuizzes(quizzes);
       const generateJob: GenerateJob = await response.json();
       console.log(`Created job ${generateJob.id}`);
     } else {

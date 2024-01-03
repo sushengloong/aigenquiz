@@ -20,7 +20,7 @@ export const generateQuiz = async (context: string): Promise<string> => {
       },
       {
         role: "user",
-        content: `Write top ${numQuizzes} multiple-choice quizzes that can test my understanding of the text below. Each quiz must have 4 choices and only 1 is the correct answer. For each of the choices, explain why the choice is correct or wrong. Describe the difficulty of the question relative to other questions(whether this is an easy, medium or hard question). \n\n ${contextClipped}`,
+        content: `Write top ${numQuizzes} multiple-choice quizzes that can test my understanding of the text below. Each quiz must have 4 choices and only 1 is the correct answer. For each of the choices, explain why the choice is correct or wrong. \n\n ${contextClipped}`,
       },
     ],
     model: "gpt-3.5-turbo",
