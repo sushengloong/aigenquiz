@@ -1,11 +1,7 @@
-import { CHANNEL_NAME } from "@/app/events";
-import { Redis } from "ioredis";
 import { v4 as uuidv4 } from "uuid";
 import { PdfReader } from "pdfreader";
 import { generateQuiz } from "@/app/services/openai";
 import { scrape } from "@/app/services/scraper";
-
-const redisPublisher = new Redis();
 
 async function downloadPdf(url: string): Promise<Buffer> {
   const response = await fetch(url);
@@ -26,7 +22,10 @@ async function parsePdf(pdfBuffer: Buffer): Promise<string> {
   });
 }
 
-async function fetchUrlAndGenerateQuiz(id: string, url: string) {
+async function fetchUrlAndGenerateQuiz(
+  id: string,
+  url: string,
+): Promise<AsyncGenerator<string, void, unknown>> {
   console.log(`Fetching URL and generating quiz for ${id} and ${url}...`);
 
   const trimmedUrl = url.trim();
@@ -39,25 +38,37 @@ async function fetchUrlAndGenerateQuiz(id: string, url: string) {
     context = await scrape(trimmedUrl);
   }
 
-  console.log(`Context: ${context.substring(0, 80)}...`);
+  console.info(`Context: ${context.substring(0, 80)}...`);
 
-  const generated = await generateQuiz(context);
-  console.log(`Generated: ${generated}...`);
-  const quizzes = JSON.parse(generated);
+  return generateQuiz(context);
+}
 
-  const response = JSON.stringify({ id, ...quizzes });
-  redisPublisher.publish(CHANNEL_NAME, response, (err) => {
-    if (err) {
-      console.error("Failed to publish: %s", err.message);
-    } else {
-      console.log("Published successfully!");
-    }
+function iteratorToStream(iterator: any) {
+  return new ReadableStream({
+    async pull(controller) {
+      const { value, done } = await iterator.next();
+
+      if (done) {
+        controller.close();
+      } else {
+        controller.enqueue(value);
+      }
+    },
   });
 }
 
 export async function POST(req: Request) {
   const { url } = await req.json();
   const id = uuidv4();
-  fetchUrlAndGenerateQuiz(id, url);
-  return new Response(JSON.stringify({ id }));
+  const generator = await fetchUrlAndGenerateQuiz(id, url);
+
+  const stream = iteratorToStream(generator);
+
+  const headers = {
+    "Content-Type": "text/event-stream",
+    "Cache-Control": "no-cache",
+    Connection: "keep-alive",
+  };
+
+  return new Response(stream, { headers });
 }

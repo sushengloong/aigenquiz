@@ -7,30 +7,12 @@ import LoadingSpinner from "./loading-spinner";
 import { GenerateJob, Quiz } from "../models";
 
 export default function QuizGenerator() {
+  const NUM_QUESTIONS = 5;
   const [url, setUrl] = useState<string>("");
-  const [quizzes, setQuizzes] = useState<Quiz[]>([]);
+  const [quiz, setQuiz] = useState<string[][]>(
+    new Array(NUM_QUESTIONS).fill(new Array(NUM_QUESTIONS).fill("")),
+  );
   const [isLoading, setIsLoading] = useState<boolean>(false);
-
-  useEffect(() => {
-    const eventSource = new EventSource("/api/events");
-
-    eventSource.onmessage = (event) => {
-      const jsonData = JSON.parse(event.data);
-      const quizzes = jsonData.quizzes;
-      console.log("Received event:", quizzes);
-      setQuizzes(quizzes);
-      if (isLoading) {
-        setIsLoading(false);
-      }
-    };
-
-    eventSource.onerror = (error: Event) => {
-      console.error("EventSource failed:", error);
-      eventSource.close();
-    };
-
-    return () => eventSource.close();
-  });
 
   const handleSubmit = async (event: FormEvent) => {
     event.preventDefault();
@@ -38,14 +20,29 @@ export default function QuizGenerator() {
     const response = await fetch("/api/generate", {
       method: "POST",
       headers: {
-        "Content-Type": "application/json",
+        "Content-Type": "text/event-stream",
       },
       body: JSON.stringify({ url }),
     });
 
     if (response.ok) {
-      const generateJob: GenerateJob = await response.json();
-      console.log(`Created job ${generateJob.id}`);
+      const stream = response.body!;
+      const reader = stream.getReader();
+
+      setIsLoading(false);
+
+      const readChunk = async () => {
+        const { value, done } = await reader.read();
+        if (done) {
+          console.log("Stream finished");
+          return;
+        }
+        const chunkString = new TextDecoder().decode(value);
+        console.log("Chunk:", chunkString);
+        readChunk();
+      };
+
+      await readChunk();
     } else {
       console.error("Failed to generate quiz");
       setIsLoading(false);
@@ -74,14 +71,13 @@ export default function QuizGenerator() {
       {isLoading ? (
         <LoadingSpinner />
       ) : (
-        !!quizzes.length && (
-          <div className="mt-4">
-            <h2 className="text-lg font-semibold">Quizzes:</h2>
-            {quizzes.map((quiz, index) => (
+        <div className="mt-4">
+          <h2 className="text-lg font-semibold">Quizzes:</h2>
+          {quiz}
+          {/* {quizzes.map((quiz, index) => (
               <QuizComponent key={index} quiz={quiz} index={index} />
-            ))}
-          </div>
-        )
+            ))} */}
+        </div>
       )}
     </div>
   );
