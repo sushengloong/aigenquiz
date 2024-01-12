@@ -1,4 +1,9 @@
 import OpenAI from "openai";
+import { Quizzes } from "../models";
+
+import zodToJsonSchema from "zod-to-json-schema";
+
+import { OpenAiHandler, StreamMode, Entity } from "openai-partial-stream";
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
@@ -6,7 +11,7 @@ const openai = new OpenAI({
 
 export const generateQuiz = async function* (context: string) {
   const contextClipped = context.substring(0, 1000);
-  const numQuizzes = 5;
+  const numQuestions = 5;
   const chatCompletionStream = await openai.chat.completions.create({
     messages: [
       {
@@ -17,36 +22,7 @@ export const generateQuiz = async function* (context: string) {
       {
         role: "user",
         content: `
-        Write ${numQuizzes} multiple-choice quizzes that can test my understanding of the text below. Each quiz must have 4 choices and only 1 is the correct answer. For each of the choices, explain why the choice is correct or wrong.
-
-        Your response must follow the format below:
-
-        ###
-        Question 1
-        Choice A
-        Choice B
-        Choice C
-        Choice D
-        Correct choice (only the letter)
-        Explanation
-
-        Question 2
-        Choice A
-        Choice B
-        Choice C
-        Choice D
-        Correct choice (only the letter)
-        Explanation
-
-        Question 3
-        Choice A
-        Choice B
-        Choice C
-        Choice D
-        Correct choice (only the letter)
-        Explanation
-        ###
-
+        Write ${numQuestions} multiple-choice questions that can test my understanding of the text below. Each quiz must have 4 choices and only 1 is the correct answer. For each of the choices, explain why the choice is correct or wrong.
         The text: ${contextClipped}
         `
           .split("\n")
@@ -57,25 +33,24 @@ export const generateQuiz = async function* (context: string) {
     model: "gpt-3.5-turbo",
     stream: true,
     max_tokens: 1000,
+    functions: [
+      {
+        name: "generate_quizzes",
+        description: "Generate quizzes from a given text",
+        parameters: zodToJsonSchema(Quizzes),
+      },
+    ],
+    function_call: { name: "generate_quizzes" },
   });
 
-  // let started = false;
-  // let line = "";
+  const openAiHandler = new OpenAiHandler(
+    StreamMode.StreamObjectKeyValueTokens,
+  );
+  const entityStream = openAiHandler.process(chatCompletionStream);
+  const quizzes = new Entity("quizzes", Quizzes);
+  const quizzesStream = quizzes.genParse(entityStream);
 
-  for await (const chunk of chatCompletionStream) {
-    const token = chunk.choices[0]?.delta?.content || "";
-    yield token;
-    // if (token === "###") {
-    //   if (started) {
-    //     break;
-    //   } else if (!started) {
-    //     started = true;
-    //     continue;
-    //   }
-    // } else if (token === "\n") {
-    //   yield line + "\n";
-    // } else {
-    //   line += token;
-    // }
+  for await (const item of quizzesStream) {
+    yield JSON.stringify(item || "{}");
   }
 };

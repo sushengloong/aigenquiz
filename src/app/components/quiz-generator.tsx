@@ -1,17 +1,14 @@
 "use client";
 
-import { useState, FormEvent, useEffect } from "react";
-import QuizComponent from "./quiz-component";
+import { useState, FormEvent } from "react";
 import LoadingSpinner from "./loading-spinner";
-
-import { GenerateJob, Quiz } from "../models";
+import { Quizzes } from "../models";
+import QuizComponent from "./quiz-component";
 
 export default function QuizGenerator() {
-  const NUM_QUESTIONS = 5;
   const [url, setUrl] = useState<string>("");
-  const [quiz, setQuiz] = useState<string[][]>(
-    new Array(NUM_QUESTIONS).fill(new Array(NUM_QUESTIONS).fill("")),
-  );
+  // eslint-disable-next-line no-unused-vars
+  const [quizzes, setQuizzes] = useState<Quizzes>({ quizzes: [] });
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
   const handleSubmit = async (event: FormEvent) => {
@@ -26,10 +23,9 @@ export default function QuizGenerator() {
     });
 
     if (response.ok) {
+      setIsLoading(false);
       const stream = response.body!;
       const reader = stream.getReader();
-
-      setIsLoading(false);
 
       const readChunk = async () => {
         const { value, done } = await reader.read();
@@ -38,7 +34,16 @@ export default function QuizGenerator() {
           return;
         }
         const chunkString = new TextDecoder().decode(value);
-        console.log("Chunk:", chunkString);
+        let chunkObj;
+        try {
+          chunkObj = JSON.parse(chunkString);
+        } catch (e) {
+          // console.error(e);
+        }
+        if (chunkObj?.data?.quizzes) {
+          console.log(chunkObj.data.quizzes);
+          setQuizzes({ quizzes: chunkObj.data.quizzes });
+        }
         readChunk();
       };
 
@@ -73,10 +78,9 @@ export default function QuizGenerator() {
       ) : (
         <div className="mt-4">
           <h2 className="text-lg font-semibold">Quizzes:</h2>
-          {quiz}
-          {/* {quizzes.map((quiz, index) => (
-              <QuizComponent key={index} quiz={quiz} index={index} />
-            ))} */}
+          {quizzes.quizzes.map((quiz, index) => (
+            <QuizComponent key={index} quiz={quiz} index={index} />
+          ))}
         </div>
       )}
     </div>

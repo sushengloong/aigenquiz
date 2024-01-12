@@ -13,6 +13,7 @@
     "ioredis": "^5.3.2",
     "next": "14.0.4",
     "openai": "^4.24.1",
+    "openai-partial-stream": "^0.3.7",
     "pdfreader": "^3.0.2",
     "playwright": "^1.40.1",
     "react": "^18",
