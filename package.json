@@ -3,11 +3,12 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "fix": "next lint --fix"
+    "fix": "next lint --fix",
+    "dev": "concurrently -n NEXT,TS -c magenta,cyan 'next dev' 'npm run ts:watch'",
+    "ts:watch": "tsc --noEmit --incremental --preserveWatchOutput --pretty --watch"
   },
   "dependencies": {
     "next": "14.0.4",
@@ -27,6 +28,7 @@
     "@types/react-dom": "^18",
     "@types/uuid": "^9.0.7",
     "autoprefixer": "^10.0.1",
+    "concurrently": "^8.2.2",
     "eslint": "^8",
     "eslint-config-next": "14.0.4",
     "eslint-config-prettier": "^9.1.0",
