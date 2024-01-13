@@ -2,7 +2,7 @@
 
 import { useState, FormEvent } from "react";
 import LoadingSpinner from "./loading-spinner";
-import { Quiz } from "../models";
+import { PartialStream, Quiz } from "../models";
 import QuizComponent from "./quiz-component";
 
 export default function QuizGenerator() {
@@ -32,19 +32,21 @@ export default function QuizGenerator() {
       const readChunk = async () => {
         const { value, done } = await reader.read();
         if (done) {
-          console.log("Stream finished");
+          // console.log("Stream finished");
+          setStatus("ready");
           return;
         }
-        const chunkString = new TextDecoder().decode(value);
-        let chunkObj;
+        const jsonString = new TextDecoder().decode(value);
+        let jsonObj: PartialStream | undefined;
         try {
-          chunkObj = JSON.parse(chunkString);
+          jsonObj = JSON.parse(jsonString);
         } catch (e) {
           // console.error(e);
         }
-        if (chunkObj?.data?.quizzes) {
-          console.log(chunkObj.data.quizzes);
-          setQuizzes(chunkObj.data.quizzes);
+        // console.log(jsonObj);
+        if (jsonObj?.data?.quizzes) {
+          // console.log(jsonObj.data.quizzes);
+          setQuizzes(jsonObj.data.quizzes);
         }
         readChunk();
       };
@@ -75,19 +77,15 @@ export default function QuizGenerator() {
           </button>
         )}
       </form>
-      {status === "fetching" ? (
-        <LoadingSpinner />
-      ) : (
-        status === "completing" &&
-        !!quizzes.length && (
-          <div className="mt-4">
-            <h2 className="text-lg font-semibold">Quizzes:</h2>
-            {quizzes.map((quiz, index) => (
-              <QuizComponent key={index} quiz={quiz} index={index} />
-            ))}
-          </div>
-        )
+      {!!quizzes.length && (
+        <div className="mt-4">
+          <h2 className="text-lg font-semibold">Quizzes:</h2>
+          {quizzes.map((quiz, index) => (
+            <QuizComponent key={index} quiz={quiz} index={index} />
+          ))}
+        </div>
       )}
+      {(status === "fetching" || status === "completing") && <LoadingSpinner />}
     </div>
   );
 }
