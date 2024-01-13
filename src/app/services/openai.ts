@@ -17,22 +17,16 @@ export const generateQuiz = async function* (context: string) {
       {
         role: "system",
         content:
-          "You are an assistant that can generate excellent quizzes covering the gist of any given text.",
+          "You are an assistant that can generate quizzes covering the gist and main takeaways of any given text and output totally valid JSON.",
       },
       {
         role: "user",
-        content: `
-        Write ${numQuestions} multiple-choice questions that can test my understanding of the text below. Each quiz must have 4 choices and only 1 is the correct answer. For each of the choices, explain why the choice is correct or wrong.
-        The text: ${contextClipped}
-        `
-          .split("\n")
-          .map((line) => line.trim())
-          .join("\n"),
+        content: `Write top ${numQuestions} multiple-choice quizzes that can test my understanding of the text below. Each quiz must have 4 choices and only 1 is the correct answer. For each of the choices, explain why the choice is correct or wrong. \n\n ${contextClipped}`,
       },
     ],
     model: "gpt-3.5-turbo",
+    temperature: 0.1,
     stream: true,
-    max_tokens: 1000,
     functions: [
       {
         name: "generate_quizzes",

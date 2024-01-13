@@ -2,18 +2,20 @@
 
 import { useState, FormEvent } from "react";
 import LoadingSpinner from "./loading-spinner";
-import { Quizzes } from "../models";
+import { Quiz } from "../models";
 import QuizComponent from "./quiz-component";
 
 export default function QuizGenerator() {
+  type Status = "ready" | "fetching" | "completing";
+
   const [url, setUrl] = useState<string>("");
   // eslint-disable-next-line no-unused-vars
-  const [quizzes, setQuizzes] = useState<Quizzes>({ quizzes: [] });
-  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [quizzes, setQuizzes] = useState<Quiz[]>([]);
+  const [status, setStatus] = useState<Status>("ready");
 
   const handleSubmit = async (event: FormEvent) => {
     event.preventDefault();
-    setIsLoading(true);
+    setStatus("fetching");
     const response = await fetch("/api/generate", {
       method: "POST",
       headers: {
@@ -23,7 +25,7 @@ export default function QuizGenerator() {
     });
 
     if (response.ok) {
-      setIsLoading(false);
+      setStatus("completing");
       const stream = response.body!;
       const reader = stream.getReader();
 
@@ -42,7 +44,7 @@ export default function QuizGenerator() {
         }
         if (chunkObj?.data?.quizzes) {
           console.log(chunkObj.data.quizzes);
-          setQuizzes({ quizzes: chunkObj.data.quizzes });
+          setQuizzes(chunkObj.data.quizzes);
         }
         readChunk();
       };
@@ -50,7 +52,7 @@ export default function QuizGenerator() {
       await readChunk();
     } else {
       console.error("Failed to generate quiz");
-      setIsLoading(false);
+      setStatus("ready");
     }
   };
 
@@ -67,21 +69,24 @@ export default function QuizGenerator() {
           className="p-2 border border-gray-300 rounded text-gray-800"
           placeholder="Enter URL"
         />
-        {!isLoading && (
+        {status === "ready" && (
           <button type="submit" className="bg-blue-500 text-white p-2 rounded">
             Generate
           </button>
         )}
       </form>
-      {isLoading ? (
+      {status === "fetching" ? (
         <LoadingSpinner />
       ) : (
-        <div className="mt-4">
-          <h2 className="text-lg font-semibold">Quizzes:</h2>
-          {quizzes.quizzes.map((quiz, index) => (
-            <QuizComponent key={index} quiz={quiz} index={index} />
-          ))}
-        </div>
+        status === "completing" &&
+        !!quizzes.length && (
+          <div className="mt-4">
+            <h2 className="text-lg font-semibold">Quizzes:</h2>
+            {quizzes.map((quiz, index) => (
+              <QuizComponent key={index} quiz={quiz} index={index} />
+            ))}
+          </div>
+        )
       )}
     </div>
   );

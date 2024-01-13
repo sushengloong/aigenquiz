@@ -1,14 +1,14 @@
 import { z } from "zod";
 
 export const Choice = z.object({
-  choice: z.string(),
-  is_correct: z.boolean(),
-  explanation: z.string(),
+  choice: z.string().optional(),
+  is_correct: z.boolean().optional(),
+  explanation: z.string().optional(),
 });
 export type Choice = z.infer<typeof Choice>;
 
 export const Quiz = z.object({
-  question: z.string(),
+  question: z.string().optional(),
   choices: z.array(Choice),
 });
 export type Quiz = z.infer<typeof Quiz>;
