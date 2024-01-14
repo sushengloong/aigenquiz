@@ -25,6 +25,7 @@ async function parsePdf(pdfBuffer: Buffer): Promise<string> {
 async function fetchUrlAndGenerateQuiz(
   id: string,
   url: string,
+  numQuestions: number,
 ): Promise<AsyncGenerator<string, void, unknown>> {
   console.log(`Fetching URL and generating quiz for ${id} and ${url}...`);
 
@@ -40,7 +41,7 @@ async function fetchUrlAndGenerateQuiz(
 
   console.info(`Context: ${context.substring(0, 80)}...`);
 
-  return generateQuiz(context);
+  return generateQuiz(context, numQuestions);
 }
 
 function iteratorToStream(iterator: any) {
@@ -58,9 +59,9 @@ function iteratorToStream(iterator: any) {
 }
 
 export async function POST(req: Request) {
-  const { url } = await req.json();
+  const { url, numQuestions } = await req.json();
   const id = uuidv4();
-  const generator = await fetchUrlAndGenerateQuiz(id, url);
+  const generator = await fetchUrlAndGenerateQuiz(id, url, numQuestions);
 
   const stream = iteratorToStream(generator);
 

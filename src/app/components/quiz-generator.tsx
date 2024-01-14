@@ -12,6 +12,7 @@ export default function QuizGenerator() {
   // eslint-disable-next-line no-unused-vars
   const [quizzes, setQuizzes] = useState<Quiz[]>([]);
   const [status, setStatus] = useState<Status>("ready");
+  const [numQuestions, setNumOfQuestions] = useState<number>(5);
 
   const handleSubmit = async (event: FormEvent) => {
     event.preventDefault();
@@ -21,7 +22,7 @@ export default function QuizGenerator() {
       headers: {
         "Content-Type": "text/event-stream",
       },
-      body: JSON.stringify({ url }),
+      body: JSON.stringify({ url, numQuestions }),
     });
 
     if (response.ok) {
@@ -44,9 +45,10 @@ export default function QuizGenerator() {
           // console.error(e);
         }
         // console.log(jsonObj);
-        if (jsonObj?.data?.quizzes) {
-          // console.log(jsonObj.data.quizzes);
-          setQuizzes(jsonObj.data.quizzes);
+        const quizzes = jsonObj?.data?.quizzes;
+        if (quizzes) {
+          console.log(quizzes);
+          setQuizzes(quizzes);
         }
         readChunk();
       };
@@ -64,13 +66,32 @@ export default function QuizGenerator() {
         <label htmlFor="urlInput" className="text-lg font-medium text-gray-700">
           Generate quizzes to test your understanding
         </label>
-        <input
-          type="text"
-          value={url}
-          onChange={(e) => setUrl(e.target.value)}
-          className="p-2 border border-gray-300 rounded text-gray-800"
-          placeholder="Enter URL"
-        />
+        <div className="flex items-center">
+          <input
+            type="text"
+            value={url}
+            onChange={(e) => setUrl(e.target.value)}
+            className="p-2 border border-gray-300 rounded text-gray-800 flex-grow"
+            placeholder="Enter URL"
+            disabled={status !== "ready"}
+          />
+          <label htmlFor="numberInput" className="ml-2">
+            Number of questions:
+          </label>
+          <select
+            id="numberSelect"
+            className="border p-2 rounded ml-2"
+            defaultValue={5}
+            onChange={(e) => setNumOfQuestions(Number(e.target.value))}
+            disabled={status !== "ready"}
+          >
+            {[...Array(10)].map((_, i) => (
+              <option key={i} value={i + 1}>
+                {i + 1}
+              </option>
+            ))}
+          </select>
+        </div>
         {status === "ready" && (
           <button type="submit" className="bg-blue-500 text-white p-2 rounded">
             Generate
