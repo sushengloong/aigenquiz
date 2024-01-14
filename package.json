@@ -9,7 +9,7 @@
     "fix": "next lint --fix",
     "dev": "concurrently -n NEXT,TS -c magenta,cyan 'next dev' 'npm run ts:watch'",
     "ts:watch": "tsc --noEmit --incremental --preserveWatchOutput --pretty --watch",
-    "vercel-build": "npm run build && npx playwright install"
+    "postinstall": "npx playwright install"
   },
   "dependencies": {
     "next": "14.0.4",
