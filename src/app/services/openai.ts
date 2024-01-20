@@ -36,7 +36,6 @@ export const generateQuiz = async function* (
       },
     ],
     function_call: { name: "create_quiz" },
-    max_tokens: 1000,
   });
 
   const openAiHandler = new OpenAiHandler(
