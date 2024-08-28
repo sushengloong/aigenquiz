@@ -5,6 +5,8 @@ import zodToJsonSchema from "zod-to-json-schema";
 
 import { OpenAiHandler, StreamMode, Entity } from "openai-partial-stream";
 
+const MODEL_NAME = "gpt-4o-2024-08-06";
+
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
@@ -18,15 +20,18 @@ export const generateQuiz = async function* (
     messages: [
       {
         role: "system",
-        content: `Create ${numQuestions} top multiple-choice questions for a given text from the user in a valid JSON output. Each question must have 4 choices and only 1 is the correct answer. For each of the choices, explain why the choice is correct or wrong.`,
+        content:
+          `Create ${numQuestions} top multiple-choice questions for a given text from the user in a valid JSON output.` +
+          "All questions must be on the key takeaways and insights of the given text." +
+          "Each question must have 4 choices and only 1 is the correct answer. For each of the choices, explain why the choice is correct or wrong.",
       },
       {
         role: "user",
         content: `The text: ${contextClipped}`,
       },
     ],
-    model: "gpt-3.5-turbo",
-    temperature: 0.1,
+    model: MODEL_NAME,
+    temperature: 0.8,
     stream: true,
     functions: [
       {
